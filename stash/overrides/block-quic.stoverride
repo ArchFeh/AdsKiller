@@ -1,0 +1,11 @@
+name: Block QUIC
+desc: 使用 Script Shortcuts 拒绝 UDP/443 流量，供支持回退的应用改用 TCP 连接。
+
+script:
+  shortcuts:
+    quic: network == 'udp' and dst_port == 443
+
+# rules 默认前置合并，保留主配置中的原有规则。
+# 匹配所有目的地，包括原本会直连的 UDP/443 流量。
+rules:
+  - SCRIPT,quic,REJECT

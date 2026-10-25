@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2023 app2smile
+# Original: https://github.com/app2smile/rules/blob/df6366a7024e0b3f0aa3510c5b791eea6f3cba89/module/tieba.stoverride
+# Parameter reference: https://github.com/app2smile/rules/blob/df6366a7024e0b3f0aa3510c5b791eea6f3cba89/module/tieba.sgmodule
+# Modified by AdsKiller on 2026-10-25: add a Stash parameter form and forward the parameter.
+# MIT license copy: ../../LICENSES/app2smile-MIT.txt
+name: 贴吧去广告(>=iOS15)
+desc: 开屏广告;推荐和吧内帖子列表的直播及广告;详情页直播/关联商品/广告;看图模式广告;首页和帖子详情页右下角悬浮广告;部分吧内的置顶/最新中间的广告/head图片广告/head直播
+author: app2smile[https://github.com/app2smile]
+homepage: https://github.com/app2smile/rules
+version: '2026.10.25'
+
+# 需要支持覆写参数的 Stash Beta：iOS/tvOS 3.7+、macOS 4.4+。
+# 使用数字选项，与原脚本的 per_filter_video_thread=0/1 保持一致。
+arguments-version: 1
+arguments:
+  per_filter_video:
+    type: select
+    title: 推荐页视频贴
+    description: 选择是否过滤推荐页的视频贴；广告过滤始终由原脚本处理。
+    default: 0
+    options:
+      - value: 0
+        label: 保留视频贴
+      - value: 1
+        label: 过滤视频贴
+
+http:
+  mitm:
+    - 'tiebac.baidu.com'
+  script:
+    - match: ^https?:\/\/(tiebac|c\.tieba)\.baidu\.com\/(c\/(s\/sync|f\/(ad\/getSplashAd|frs\/(page|threadlist|generalTabList)|pb\/(pic)?page|excellent\/personalized))$|tiebaads\/commonbatch\?)
+      name: smile_tieba_json
+      type: response
+      require-body: true
+      timeout: 10
+    - match: ^https?:\/\/(tiebac|c\.tieba)\.baidu\.com\/c\/(b\/ad\/adBid|f\/(frs\/(page|threadlist|generalTabList)|ad\/getFeedAd|pb\/page|excellent\/personalized))\?cmd
+      name: smile_tieba_proto
+      type: response
+      argument: 'per_filter_video_thread=${args.per_filter_video}'
+      require-body: true
+      binary-mode: true
+      timeout: 10
+
+script-providers:
+  smile_tieba_json:
+    url: https://raw.githubusercontent.com/app2smile/rules/master/js/tieba-json.js
+    interval: 86400
+  smile_tieba_proto:
+    url: https://raw.githubusercontent.com/app2smile/rules/master/js/tieba-proto.js
+    interval: 86400

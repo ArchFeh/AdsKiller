@@ -1,0 +1,25 @@
+# macOS / editors
+.DS_Store
+._*
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Personal profiles, subscription URLs, credentials and certificates
+private/
+*.local.yaml
+*.local.yml
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key
+*.pem
+
+# Temporary exports and logs
+*.log
+*.bak
+tmp/

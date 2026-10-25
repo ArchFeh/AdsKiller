@@ -1,0 +1,216 @@
+# Original module authors: RuCu6, blackmatrix7.
+# Converted source: QingRex/LoonKissSurge, revision 913ec005f544221e6c56a7d0ecec81c4b3b914bb.
+# Modified by AdsKiller on 2026-10-26: Stash configuration syntax.
+# Upstream script is referenced remotely and has not been copied or modified.
+# Source and distribution notes: ../../THIRD_PARTY_NOTICES.md
+# Provider downloads use the full Loon User-Agent verified with HTTP 200 on 2026-10-26.
+name: '知乎去广告'
+desc: '移除各部分广告与知乎安全中心跳转；QingRex Beta 模块的 Stash 转换版。'
+author: 'RuCu6[https://github.com/RuCu6], blackmatrix7[https://github.com/blackmatrix7]'
+homepage: 'https://hub.kelee.one'
+icon: 'https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/Zhihu.png'
+openUrl: 'https://apps.apple.com/app/id432274380'
+category: 'BetaModule'
+version: '2026.10.26'
+rules:
+  - 'DOMAIN,appcloud.zhihu.com,REJECT'
+  - 'DOMAIN,appcloud2.in.zhihu.com,REJECT'
+  - 'DOMAIN,crash2.zhihu.com,REJECT'
+  - 'DOMAIN,mqtt.zhihu.com,REJECT'
+  - 'DOMAIN,sugar.zhihu.com,REJECT'
+  - 'DOMAIN,zxid-m.mobileservice.cn,REJECT'
+  - 'IP-CIDR,103.41.167.237/32,REJECT,no-resolve'
+  - 'IP-CIDR,118.89.204.198/32,REJECT,no-resolve'
+  - 'IP-CIDR,182.61.194.7/32,REJECT,no-resolve'
+  - 'IP-CIDR6,2402:4e00:1200:ed00:0:9089:6dac:96b6/128,REJECT,no-resolve'
+http:
+  mitm:
+    - '*.zhihu.com'
+  url-rewrite:
+    - '^https:\/\/api\.zhihu\.com\/unlimited\/go\/my_card - reject'
+    - '^https:\/\/www\.zhihu\.com\/appview\/v3\/zhmore - reject'
+    - '^https:\/\/link\.zhihu\.com\/\?target=(?:https?)?(?:%3A|:)?(?:\/\/|%2F%2F)?(.*) http://$1 302'
+  body-rewrite:
+    - '^https:\/\/api\.zhihu\.com\/bazaar\/vip_tab\/header\? response-jq delpaths([["activity_banner"]])'
+    - '^https:\/\/api\.zhihu\.com\/bazaar\/vip_tab\/header\? response-jq delpaths([["activity_window"]])'
+    - '^https:\/\/api\.zhihu\.com\/bazaar\/vip_tab\/header\? response-jq delpaths([["vip_tip"]])'
+    - '^https:\/\/api\.zhihu\.com\/search\/recommend_query\/v2\? response-jq if type == "object" then if (.recommend_queries | type) == "object" then .recommend_queries = {} else . end else . end'
+    - '^https:\/\/api\.zhihu\.com\/questions\/\d+(?:\/answers|\/feeds|\?include=) response-jq del(.ad_info, .data.ad_info?, .query_info) | if (.data | type) == "array" then .data |= map(select(.target?.answer_type? // "" | tostring | contains("paid") | not)) else . end'
+  mock:
+    - match: '^https:\/\/api\.zhihu\.com\/commercial_api\/'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/content-distribution-core\/bubble\/common\/settings'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/(?:moments\/lastread|drama\/hot-drama-list)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/root\/window'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/(?:bazaar\/float_window|market\/popovers_v2)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/me\/guides'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/people\/homepage_entry_v2'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/search\/(hot_search|preset_words)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/api\/v4\/search\/clicked_recommendation\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/api\/v4\/search\/related_queries\/(?:article|answer)\/\d+'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/comment_v5\/(?:articles|answers)\/\d+\/list-headers'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/prague\/related_suggestion_native\/feed\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/v5\.1\/topics\/answer\/\d+\/relation'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/ab\/api\/v1\/products\/zhihu\/platforms\/ios\/config'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/ad-style-service\/request'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/appcloud2\.zhihu\.com\/v3\/resource\?group_name=mp'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.zhihu\.com\/distribute\/rhea\/qa_ad_card\/h5\/recommendation\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/api\/v4\/hot_recommendation'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/api\/v4\/mcn\/v2\/linkcards\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/api\/v4/(?:answers|questions)\/\d+/related-readings'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/www\.zhihu\.com\/commercial_api\/banners_v3\/mobile_banner'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/zhuanlan\.zhihu\.com\/api\/articles\/\d+\/recommendation'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+  script:
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/(?:api|page-info)\.zhihu\.com\/(?:answers|articles)\/v2\/\d+'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/commercial_api\/app_float_layer'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/feed\/render\/tab\/config\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/(?:moments_v3|topstory\/hot-lists\/total|topstory\/recommend)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/root\/tab'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/v2\/topstory\/hot-lists\/everyone-seeing\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/api\.zhihu\.com\/next-(?:bff|data|render)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/www\.zhihu\.com\/api\/v4\/(?:articles|answers)\/\d+\/recommendations?\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/appcloud2\.zhihu\.com\/v3\/config'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'zhihu-remove-ads'
+      match: '^https:\/\/m-cloud\.zhihu\.com\/api\/cloud\/zhihu\/config\/all\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+script-providers:
+  zhihu-remove-ads:
+    url: 'https://kelee.one/Resource/JavaScript/Zhihu/Zhihu_remove_ads.js'
+    interval: 86400
+    headers:
+      User-Agent: 'Loon/921 CFNetwork/3860.500.111.2.2 Darwin/25.5.0'

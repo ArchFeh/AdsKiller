@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Module source: kokoryh/Sparkle (GPL-3.0).
+# Original module and remote scripts: Maasea/sgmodule (Apache-2.0).
+# Source: https://github.com/kokoryh/Sparkle/blob/290bcbdd2f158cdd8f7db9c996e90fe63490e16f/release/surge/module/youtube.sgmodule
+# Modified by AdsKiller on 2026-10-26: Stash format and native parameter form.
+# Attribution and license copies: ../../THIRD_PARTY_NOTICES.md
+name: YouTube 增强
+desc: |-
+  适用于 YouTube / YouTube Music，沿用 Maasea 脚本与 kokoryh/Sparkle 模块配置。
+  支持上传、选段、Shorts 按钮屏蔽及字幕翻译参数。需要 Stash MitM 证书。
+author: Maasea[https://github.com/Maasea], kokoryh[https://github.com/kokoryh]
+homepage: https://github.com/Maasea/sgmodule
+category: Enhancement
+version: '2026.10.26'
+
+# 需要支持覆写参数的 Stash Beta：iOS/tvOS 3.7+、macOS 4.4+。
+arguments-version: 1
+arguments:
+  block_upload:
+    type: switch
+    title: 屏蔽上传按钮
+    default: true
+  block_immersive:
+    type: switch
+    title: 屏蔽选段按钮
+    default: true
+  block_shorts:
+    type: switch
+    title: 屏蔽 Shorts 按钮
+    description: 沿用 Sparkle 模块的默认值，仅控制原脚本支持的按钮过滤。
+    default: true
+  caption_lang:
+    type: input
+    title: 字幕翻译语言
+    description: 填写 Google 翻译语言代码（例如 zh-CN），填写 off 关闭翻译。
+    default: 'off'
+    required: true
+    min-length: 1
+    max-length: 32
+  debug:
+    type: switch
+    title: 启用调试模式
+    default: false
+
+http:
+  mitm:
+    - '*.googlevideo.com'
+    - youtubei.googleapis.com
+  script:
+    - name: maasea-youtube-response
+      match: '^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$'
+      type: response
+      argument: '{"captionLang":${args.caption_lang|json},"blockUpload":${args.block_upload|json},"blockImmersive":${args.block_immersive|json},"blockShorts":${args.block_shorts|json},"debug":${args.debug|json}}'
+      require-body: true
+      binary-mode: true
+      max-size: 4194304
+      engine: webkit
+      timeout: 10
+    - name: maasea-youtube-request
+      match: '^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*'
+      type: request
+      argument: '{"captionLang":${args.caption_lang|json}}'
+      require-body: true
+      binary-mode: true
+      max-size: 4194304
+      engine: webkit
+      timeout: 10
+    - name: maasea-youtube-request
+      match: '^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event'
+      type: request
+      require-body: true
+      binary-mode: true
+      max-size: 4194304
+      engine: webkit
+      timeout: 10
+
+script-providers:
+  maasea-youtube-response:
+    url: https://raw.githubusercontent.com/Maasea/sgmodule/65075cdb388fc5e3094afd7e7314c67b243f3525/Script/Youtube/youtube.response.js
+    interval: 86400
+  maasea-youtube-request:
+    url: https://raw.githubusercontent.com/Maasea/sgmodule/65075cdb388fc5e3094afd7e7314c67b243f3525/Script/Youtube/youtube.request.js
+    interval: 86400

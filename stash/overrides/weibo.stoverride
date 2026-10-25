@@ -1,0 +1,234 @@
+# Original module authors: RuCu6, zmqcherish.
+# Source: QingRex/LoonKissSurge, revision 913ec005f544221e6c56a7d0ecec81c4b3b914bb.
+# Modified by AdsKiller on 2026-10-26: Stash configuration syntax.
+# Remote script remains at the original kelee URL; full Loon User-Agent verified with HTTP 200.
+# Source and distribution notes: ../../THIRD_PARTY_NOTICES.md
+name: '微博去广告'
+desc: '过滤微博广告及去除各部分推广模块'
+author: 'RuCu6[https://github.com/RuCu6], zmqcherish[https://github.com/zmqcherish]'
+homepage: 'https://hub.kelee.one'
+icon: 'https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/Weibo.png'
+openUrl: 'https://apps.apple.com/app/id350962117'
+category: 'iKeLee'
+version: '2026.10.26'
+rules:
+  - 'DOMAIN-SUFFIX,uve.weibo.com,DIRECT'
+  - 'DOMAIN,huodong.weibo.cn,REJECT'
+  - 'DOMAIN-SUFFIX,biz.weibo.com,REJECT'
+http:
+  mitm:
+    - '*.weibo.cn'
+    - '*.weibo.com'
+    - 'weibo.com'
+  mock:
+    - match: '^https:\/\/api\.weibo\.cn\/2\/(?:ug\/checkin\/list|push\/daily|push\/info)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/!\/live\/media_homelist\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/comments\/bullet_screens\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/photo\/info\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:container_positive|push_info)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/vote\/get_vote_detail\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/!\/chaohua\/discovery\/home_bottom\/switch\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/!\/huati\/(?:discovery_home_bottom_getdotinfo|mobile_discovery_searchchange)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/!\/wbox\/\w+\/(?:home_bottom_modal|interest_category)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/search\/(?:container_discover|finder_nav_polling)\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/hot\/hours_spotlight\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/video\/redpacket\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/!\/(?:search\/finder_nav_polling|sug\/list\/finderchange|was\/finder\/searchbarchange)\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/api\.weibo\.cn\/2\/video\/tiny_video_info_show\?'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/bootrealtime\.uve\.weibo\.com\/v[23]\/ad\/realtime'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/(?:get-lbs-cell-info\.php|sdkconfig\.php)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/card\.weibo\.com\/article\/m\/aj\/(?:reward|uvead)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+    - match: '^https:\/\/weibo\.com\/ttarticle\/x\/m\/aj\/(?:reward|uvead)'
+      status-code: 200
+      headers:
+        Content-Type: 'application/json'
+      text: '{}'
+  script:
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/(?:checkin\/show|client\/publisher_list|push\/active)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/groups\/allgroups\/v2\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/(?:cardlist|page)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/comments\/build_comments\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/(?:container\/asyn|flowlist|flowpage)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/friendships\/(?:create|destroy)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/profile\/(?:container_timeline|dealatt|me|statuses\/tab|userinfo)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/shproxy\/chaohua\/discovery\/searchactive\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:container_detail(_comment)?|container_timeline(?:_hot|_topic|_topicpage|_unread)?|repost_timeline|unread_hot_timeline)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/statuses\/(?:extend|show)\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/video\/(?:full_screen_stream|tiny_stream_mid_detail|tiny_stream_video_list)\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/!\/huati\/discovery_home_bottom_channels\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/direct_messages\/user_list\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/messageflow\/notice\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/search\/(?:container_timeline|finder)\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/api\.weibo\.cn\/2\/searchall\?'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/bootpreload\.uve\.weibo\.com\/v[12]\/ad\/preload'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/sdkapp\.uve\.weibo\.com\/interface\/sdk\/sdkad\.php'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+    - name: 'weibo-remove-ads'
+      match: '^https:\/\/wbapp\.uve\.weibo\.com\/(?:preload\/get_ad|wbapplua\/wbpullad\.lua)'
+      type: 'response'
+      require-body: true
+      max-size: 1048576
+      timeout: 10
+script-providers:
+  weibo-remove-ads:
+    url: 'https://kelee.one/Resource/JavaScript/Weibo/Weibo_remove_ads.js'
+    interval: 86400
+    headers:
+      User-Agent: 'Loon/921 CFNetwork/3860.500.111.2.2 Darwin/25.5.0'

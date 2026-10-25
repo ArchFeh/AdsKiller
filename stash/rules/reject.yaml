@@ -1,0 +1,5 @@
+# AdsKiller — Stash classical 广告拦截规则集示例
+# 此文件当前未被主配置加载，接入方式见根目录 README。
+# 策略由主配置中的 RULE-SET 指定，payload 中不附带策略。
+payload:
+  - DOMAIN-SUFFIX,ads.example.com

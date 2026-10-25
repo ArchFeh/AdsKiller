@@ -1,0 +1,43 @@
+# AdsKiller — 自用 Stash 基础配置
+# 默认直连；示例广告域名用于展示规则，不是完整广告库。
+mode: rule
+log-level: warning
+
+# 在个人配置中添加节点；不要把真实凭据提交到仓库。
+proxies: []
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - DIRECT
+  - name: AdBlock
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+
+rules:
+  # 个人放行规则放在广告拦截之前，例如：
+  # - DOMAIN,allowed.example.com,DIRECT
+
+  # 本地域名
+  - DOMAIN,localhost,DIRECT
+  - DOMAIN-SUFFIX,local,DIRECT
+  - DOMAIN-SUFFIX,lan,DIRECT
+
+  # 广告拦截示例。接入独立规则集时，替换这一行。
+  - DOMAIN-SUFFIX,ads.example.com,AdBlock
+
+  # 本地网络
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,169.254.0.0/16,DIRECT,no-resolve
+  - IP-CIDR6,::1/128,DIRECT,no-resolve
+  - IP-CIDR6,fc00::/7,DIRECT,no-resolve
+  - IP-CIDR6,fe80::/10,DIRECT,no-resolve
+
+  # 未匹配流量走 Proxy，初始化时等同直连。
+  - MATCH,Proxy

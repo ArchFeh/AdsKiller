@@ -1,0 +1,62 @@
+name: Reddit Feed Ads
+desc: 过滤 Reddit iOS 信息流广告卡片。内置脚本，无远程依赖。Stash iOS 3.2.5+。
+version: '1.0.0'
+http:
+  mitm:
+    - gql-fed.reddit.com
+  script:
+    - name: reddit-feed-ads-v1
+      match: '^https:\/\/gql-fed\.reddit\.com\/(?:\?.*)?$'
+      type: response
+      require-body: true
+      max-size: 1048576
+      timeout: 5
+script-providers:
+  reddit-feed-ads-v1:
+    payload: |
+      /* Reddit feed ad filter v1.0.0. Stash response script.
+       * Derived from the observed 2026.41.0 GraphQL feed structure.
+       * No network calls, persistent storage, or request/header logging.
+       */
+      (function () {
+        "use strict";
+        try {
+          if (!/^https:\/\/gql-fed\.reddit\.com\/(?:\?.*)?$/.test($request.url)) {
+            return $done({});
+          }
+          var status = Number($response.status);
+          if (status && (status < 200 || status >= 300)) return $done({});
+          if (typeof $response.body !== "string" || !$response.body) return $done({});
+          var removed = 0;
+          function object(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
+          function marked(v) {
+            if (!object(v)) return false;
+            return v.__typename === "AdPost" || v.isAdPost === true || object(v.adPayload) ||
+              (Array.isArray(v.cells) && v.cells.some(function (cell) {
+                return object(cell) && (cell.__typename === "AdMetadataCell" || cell.isAdPost === true);
+              }));
+          }
+          function ad(v) { return marked(v) || (object(v) && marked(v.node)); }
+          // Check a complete entry BEFORE descending into cells; otherwise removing
+          // its marker first could leave the surrounding advertising card behind.
+          function clean(v, depth) {
+            if (depth > 128) throw new Error("depth limit");
+            if (Array.isArray(v)) {
+              return v.filter(function (item) {
+                if (!ad(item)) return true;
+                removed++;
+                return false;
+              }).map(function (item) { return clean(item, depth + 1); });
+            }
+            if (object(v)) Object.keys(v).forEach(function (key) { v[key] = clean(v[key], depth + 1); });
+            return v;
+          }
+          var result = clean(JSON.parse($response.body), 0);
+          if (!removed) return $done({});
+          console.log("[Reddit Feed] removed " + removed + " ad entries");
+          return $done({ body: JSON.stringify(result) });
+        } catch (_) {
+          // Includes unsupported multipart/binary responses: pass through unchanged.
+          return $done({});
+        }
+      }());

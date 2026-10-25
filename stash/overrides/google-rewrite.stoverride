@@ -1,0 +1,13 @@
+name: Google Rewrite
+desc: Safari 谷歌搜索重定向（Stash），保留原路径和搜索参数。
+
+http:
+  mitm:
+    - g.cn
+    - www.g.cn
+    - google.cn
+    - www.google.cn
+
+  url-rewrite:
+    - '^https?://(?:www\.)?g\.cn(?=[/?#]|$)(.*)$ https://www.google.com$1 302'
+    - '^https?://(?:www\.)?google\.cn(?=[/?#]|$)(.*)$ https://www.google.com$1 302'
