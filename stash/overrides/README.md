@@ -49,9 +49,9 @@ rules:
 
 文件：[bilibili.stoverride](bilibili.stoverride) [![导入 Stash](../../assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/bilibili.stoverride)。原作者：[kokoryh](https://github.com/kokoryh)，来源：[Sparkle](https://github.com/kokoryh/Sparkle)，衍生文件保留 GPL-3.0 许可。
 
-转换了原模块的分流、静态响应、jq、HTTP 脚本及六个 MitM 域名。两个 Protobuf 脚本连同 Stash 兼容层内置于覆写，其余三个 provider 引用固定版本的上游脚本。
+保留原模块功能，提供动态常访问、创作中心、评论净化、空降助手及策略、P2P 端口和日志等级七项参数。脚本独立托管，覆写仅保留配置与引用。
 
-导入后需信任 Stash MitM 证书，并保证远程脚本可下载。默认开启 P2P 端口拦截和空降助手，可与本目录其他覆写并用。参数调整、端口拦截范围和转换差异见 [哔哩哔哩增强说明](../../docs/bilibili.md)；尚未在 Stash 中实机验证。
+需要支持覆写参数的 Stash Beta（iOS 3.7+、macOS 4.4+）、受信任的 MitM 证书和可访问的远程脚本。默认开启 P2P 端口拦截和空降助手，在覆写详情的“参数”中调整。详见 [使用说明](../../docs/bilibili.md)；尚未在 Stash 中实机验证。
 
 ## 贴吧去广告参数版
 

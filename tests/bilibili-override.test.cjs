@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const zlib = require('node:zlib');
@@ -12,6 +13,21 @@ const config = JSON.parse(execFileSync('ruby', [
 const dmView = 'https://grpc.biliapi.net/bilibili.community.service.dm.v1.DM/DmView';
 const view = 'https://grpc.biliapi.net/bilibili.app.viewunite.v1.View/View';
 const dmSegment = 'https://grpc.biliapi.net/bilibili.community.service.dm.v1.DM/DmSegMobile';
+const defaults = Object.fromEntries(Object.entries(config.arguments).map(([key, value]) => [key, value.default]));
+
+function render(template, parameters = {}) {
+  const values = { ...defaults, ...parameters };
+  return template.replace(/\$\{args\.([a-z][a-z0-9_]*)(\|json)?\}/g, (_, key, json) => {
+    assert.ok(Object.hasOwn(values, key), `Undeclared parameter: ${key}`);
+    return json ? JSON.stringify(values[key]) : String(values[key]);
+  });
+}
+
+function localScript(provider) {
+  const prefix = 'https://raw.githubusercontent.com/ArchFeh/AdsKiller/main/';
+  assert.ok(provider.url.startsWith(prefix));
+  return fs.readFileSync(path.join(__dirname, '..', provider.url.slice(prefix.length)), 'utf8');
+}
 
 function frame(message = Buffer.alloc(0), compressed = false) {
   const payload = compressed ? zlib.gzipSync(message) : Buffer.from(message);
@@ -22,6 +38,9 @@ function frame(message = Buffer.alloc(0), compressed = false) {
 }
 
 async function execute(direction, options = {}) {
+  const url = options.url || (direction === 'request' ? view : dmView);
+  const script = config.http.script.find((entry) => entry.type === direction && new RegExp(entry.match).test(url));
+  assert.ok(script, `No ${direction} hook for ${url}`);
   const logs = [];
   const requests = [];
   let calls = 0;
@@ -30,13 +49,10 @@ async function execute(direction, options = {}) {
   const context = {
     Uint8Array, ArrayBuffer, DataView, TextEncoder, TextDecoder, URL,
     console: { log(...args) { logs.push(args.join(' ')); } },
-    $environment: { 'stash-version': '3.6' },
-    $argument: JSON.stringify({
-      displayUpList: 'auto', purifyComment: 1, sponsorBlock: '#', logLevel: '4',
-      ...options.argument,
-    }),
+    $environment: { 'stash-version': '3.7' },
+    $argument: render(script.argument || '{}', options.parameters),
     $request: {
-      url: options.url || (direction === 'request' ? view : dmView),
+      url,
       method: 'POST',
       headers: { 'content-type': 'application/grpc', te: 'trailers' },
       body: options.requestBody || frame(),
@@ -67,7 +83,7 @@ async function execute(direction, options = {}) {
       body: options.responseBody || frame(),
     };
   }
-  const payload = config['script-providers'][`sparkle-bilibili-protobuf-${direction}`].payload;
+  const payload = localScript(config['script-providers'][script.name]);
   vm.runInNewContext(payload, context, { timeout: 2000 });
   let timer;
   try {
@@ -88,10 +104,41 @@ test('every HTTP script resolves its provider and its regular expression compile
     const provider = config['script-providers'][script.name];
     assert.ok(provider, script.name);
     new RegExp(script.match);
-    if (script.argument) JSON.parse(script.argument);
-    if (provider.payload) new vm.Script(provider.payload);
+    if (script.argument) JSON.parse(render(script.argument));
+    assert.equal(provider.payload, undefined, 'Overrides should reference separate scripts');
+    if (script.name.includes('protobuf')) new vm.Script(localScript(provider));
   }
   assert.ok(config.author.includes('kokoryh'));
+});
+
+test('seven native parameters preserve upstream defaults and reach their intended hooks', () => {
+  assert.equal(config['arguments-version'], 1);
+  assert.deepEqual(defaults, {
+    display_up_list: 'auto', show_creator_hub: false, purify_comment: true,
+    sponsor_block: true, airborne_policy: 'DIRECT', block_p2p: true, log_level: 4,
+  });
+  const parameters = {
+    display_up_list: 'hide', show_creator_hub: true, purify_comment: false,
+    sponsor_block: false, airborne_policy: '节点 "一" \\ 测试', block_p2p: false, log_level: 5,
+  };
+  const hooks = config.http.script.map((script) => JSON.parse(render(script.argument || '{}', parameters)));
+  assert.deepEqual(hooks[0], { logLevel: 5, airbornePolicy: parameters.airborne_policy, sponsorBlock: false });
+  assert.deepEqual(hooks[1], { purifyComment: false, logLevel: 5 });
+  assert.deepEqual(hooks[4], { showCreatorHub: true });
+  assert.deepEqual(hooks[6], { displayUpList: 'hide', purifyComment: false, sponsorBlock: false, logLevel: 5 });
+  assert.equal(render(config.rules[0], parameters), `DOMAIN,bsbsb.top,${parameters.airborne_policy}`);
+});
+
+test('P2P switch controls only the original three destination ports', () => {
+  assert.ok(config.rules.includes('SCRIPT,bilibili_p2p,REJECT'));
+  const cases = [true, false].flatMap((enabled) => [4480, 4483, 9102, 443, 80].map((port) => ({
+    expression: render(config.script.shortcuts.bilibili_p2p, { block_p2p: enabled }),
+    port, expected: enabled && [4480, 4483, 9102].includes(port),
+  })));
+  const actual = JSON.parse(execFileSync('python3', ['-c',
+    'import json,sys; print(json.dumps([eval(c["expression"], {"__builtins__": {}}, {"dst_port": c["port"]}) for c in json.load(sys.stdin)]))',
+  ], { input: JSON.stringify(cases), encoding: 'utf8' }));
+  assert.deepEqual(actual, cases.map((entry) => entry.expected));
 });
 
 test('static JSON responses are valid and gRPC mocks preserve their frame lengths', () => {
@@ -181,11 +228,29 @@ test('SponsorBlock HTTP lookup uses the chosen Stash proxy policy', async () => 
   const { value, logs, requests } = await execute('request', {
     url: dmSegment,
     requestBody: frame(Buffer.from([8, 1, 16, 2, 24, 1])),
-    argument: { airbornePolicy: '节点 1' },
+    parameters: { airborne_policy: '节点 1' },
   });
   const lookup = requests.find((request) => request.url.startsWith('https://bsbsb.top/'));
   assert.ok(lookup);
   assert.equal(lookup.headers['X-Stash-Selected-Proxy'], encodeURIComponent('节点 1'));
+  assert.equal(value.response.status, 200);
+  assert.deepEqual(logs, []);
+});
+
+test('disabling SponsorBlock passes DmSegMobile through without fetching or looking up segments', async () => {
+  const { value, requests, logs } = await execute('request', {
+    url: dmSegment,
+    requestBody: frame(Buffer.from([8, 1, 16, 2, 24, 1])),
+    parameters: { sponsor_block: false },
+  });
+  assert.equal(Object.keys(value).length, 0);
+  assert.deepEqual(requests, []);
+  assert.deepEqual(logs, []);
+});
+
+test('disabling SponsorBlock leaves the other request hooks active', async () => {
+  const { value, requests, logs } = await execute('request', { parameters: { sponsor_block: false } });
+  assert.equal(requests[0].url, view);
   assert.equal(value.response.status, 200);
   assert.deepEqual(logs, []);
 });

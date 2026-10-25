@@ -7,11 +7,11 @@
 - 转换源：[bilibili.sgmodule](https://github.com/kokoryh/Sparkle/blob/290bcbdd2f158cdd8f7db9c996e90fe63490e16f/release/surge/module/bilibili.sgmodule)。
 - 固定版本：`290bcbdd2f158cdd8f7db9c996e90fe63490e16f`。
 - 许可证：[上游 GPL-3.0](https://github.com/kokoryh/Sparkle/blob/290bcbdd2f158cdd8f7db9c996e90fe63490e16f/LICENSE)，完整副本见 [LICENSES/Sparkle-GPL-3.0.txt](LICENSES/Sparkle-GPL-3.0.txt)。
-- 衍生文件：[stash/overrides/bilibili.stoverride](stash/overrides/bilibili.stoverride)，按 GPL-3.0 分发；修改日期为 2026-10-25。
+- 衍生文件：[bilibili.stoverride](stash/overrides/bilibili.stoverride)、[protobuf-request.js](stash/scripts/bilibili/protobuf-request.js)、[protobuf-response.js](stash/scripts/bilibili/protobuf-response.js)，按 GPL-3.0 分发；修改日期为 2026-10-26。
 
-Stash 适配将分流、静态响应、jq、HTTP 脚本和 MitM 域名转成覆写格式。Protobuf 请求与响应脚本以 `payload` 内置，保留原脚本，外围补充 gzip 解压、响应字段归一化和空降助手策略选择。其余脚本引用固定版本的上游 URL。
+Stash 适配将分流、静态响应、jq、HTTP 脚本和 MitM 域名转成覆写格式，并提供原有七项选项的参数表单。Protobuf 请求与响应脚本独立存放于本仓库并通过 URL 加载，保留原脚本，外围补充 gzip 解压、响应字段归一化、空降助手策略选择及关闭时跳过弹幕分段请求拦截的逻辑。其余脚本引用固定版本的上游 URL。
 
-原始源代码和构建材料：[固定版本完整源码](https://github.com/kokoryh/Sparkle/tree/290bcbdd2f158cdd8f7db9c996e90fe63490e16f)、[源码归档](https://github.com/kokoryh/Sparkle/archive/290bcbdd2f158cdd8f7db9c996e90fe63490e16f.tar.gz)、[构建脚本](https://github.com/kokoryh/Sparkle/blob/290bcbdd2f158cdd8f7db9c996e90fe63490e16f/build.ts)。本地适配层源码直接位于覆写的两个 Protobuf `payload` 中。
+原始源代码和构建材料：[固定版本完整源码](https://github.com/kokoryh/Sparkle/tree/290bcbdd2f158cdd8f7db9c996e90fe63490e16f)、[源码归档](https://github.com/kokoryh/Sparkle/archive/290bcbdd2f158cdd8f7db9c996e90fe63490e16f.tar.gz)、[构建脚本](https://github.com/kokoryh/Sparkle/blob/290bcbdd2f158cdd8f7db9c996e90fe63490e16f/build.ts)。本地适配层源码位于上述两个 Protobuf JS 文件中，无需额外构建。
 
 同时保留上游哔哩哔哩说明中对 [app2smile](https://github.com/app2smile/rules)、[BiliUniverse](https://github.com/BiliUniverse/Universe)、[Maasea](https://github.com/Maasea/sgmodule) 的致谢。
 
@@ -23,9 +23,9 @@ Stash 适配将分流、静态响应、jq、HTTP 脚本和 MitM 域名转成覆�
 
 - 项目：[101arrowz/fflate](https://github.com/101arrowz/fflate/tree/v0.8.2)。
 - Copyright (c) 2023 Arjun Barrett。
-- 用途：为两个内置 Protobuf 脚本提供同步 gzip 解压。
+- 用途：为两个 Protobuf 脚本提供同步 gzip 解压。
 - 包文件：[fflate@0.8.2/umd/index.js](https://unpkg.com/fflate@0.8.2/umd/index.js)。
-- [MIT 许可证副本](LICENSES/fflate-MIT.txt)，也已保留在内置脚本注释中。
+- [MIT 许可证副本](LICENSES/fflate-MIT.txt)，也已保留在两个 JS 文件的注释中。
 
 ## 贴吧去广告 — app2smile / rules
 
