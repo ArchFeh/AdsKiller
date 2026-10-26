@@ -95,7 +95,7 @@ rules:
 
 文件：[redpaper.stoverride](redpaper.stoverride) [![导入 Stash](../../assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/redpaper.stoverride)。保留原署名 RuCu6、fmz200，所选模块来自 QingRex/LoonKissSurge，远程脚本沿用 kelee 原地址及完整 Loon 下载请求头。
 
-包含 1 条小红书域名范围内的 QUIC 拦截、5 条 jq 改写、5 条静态响应和 12 条响应脚本匹配，无参数表单。保留信息流广告过滤及图片、视频、实况照片水印处理，需要受信任的 Stash MitM 证书。
+包含双域名 QUIC 拦截、5 条 jq 改写、5 条静态响应和 12 条响应脚本匹配，无参数表单。覆盖 `xiaohongshu.com` 与 `rnote.com`，图片笔记支持 `edith`、`rec`、`www` 主机；保留信息流广告过滤及图片、视频、实况照片水印处理，需要受信任的 Stash MitM 证书。
 
 原脚本下载返回 HTTP 200，详情与媒体链接缓存要求见 [小红书使用说明](../../docs/redpaper.md)；尚未在 Stash 中实机验证。
 

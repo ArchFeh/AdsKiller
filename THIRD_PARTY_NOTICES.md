@@ -65,7 +65,7 @@ Stash 适配将分流、静态响应、jq、HTTP 脚本和 MitM 域名转成覆�
 - 保留原模块署名：[RuCu6](https://github.com/RuCu6)、[fmz200](https://github.com/fmz200)。
 - 选定模块：[QingRex/LoonKissSurge 的小红书去广告模块](https://github.com/QingRex/LoonKissSurge/blob/913ec005f544221e6c56a7d0ecec81c4b3b914bb/Surge/%E5%B0%8F%E7%BA%A2%E4%B9%A6%E5%8E%BB%E5%B9%BF%E5%91%8A.sgmodule)，固定提交 `913ec005f544221e6c56a7d0ecec81c4b3b914bb`。
 - 原主页：[hub.kelee.one](https://hub.kelee.one)。远程脚本引用 `https://kelee.one/Resource/JavaScript/RedPaper/RedPaper_remove_ads.js`，未复制进仓库或修改。下载检查取得 15,186 字节正文，头部保留对 `RuCu6/Loon` 中 `Scripts/xiaohongshu.js` 的引用。
-- 衍生文件：[stash/overrides/redpaper.stoverride](stash/overrides/redpaper.stoverride)。AdsKiller 于 2026-10-26 转换 Stash 语法，保留原匹配范围、jq 和脚本默认逻辑，将 `tiny-gif` 转为 Base64 GIF 响应，移除不兼容的 `extended-matching`，设置响应体上限、超时及下载用完整 Loon User-Agent。
+- 衍生文件：[stash/overrides/redpaper.stoverride](stash/overrides/redpaper.stoverride)。AdsKiller 于 2026-10-26 转换 Stash 语法，保留 jq 和脚本默认逻辑，将 `tiny-gif` 转为 Base64 GIF 响应，移除 `extended-matching`，设置响应体上限、超时及下载用完整 Loon User-Agent。同日对照 [fmz200 的现行规则](https://github.com/fmz200/wool_scripts/blob/c3f8128dd03c6b3cb35821c347968282cc45b34f/Loon/plugin/blockAds.plugin) 补齐 `rnote.com` 域名和图片笔记的 `rec`、`www` 主机，并将图片笔记所在两组脚本体积上限调整为 4 MiB；未替换或复制远程脚本。
 - 所选模块未声明独立许可证，未套用本仓库其他文件的授权。按用户自用需求本地适配；公开再分发需要确认原权利人的授权。
 
 以上许可证说明适用于标明来源的第三方内容和相应衍生文件。

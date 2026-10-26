@@ -5,10 +5,20 @@
 ## 使用
 
 1. 在支持 `PROTOCOL,QUIC`、`http.mock` 和 jq 响应改写的 Stash 中导入并启用，安装并信任 Stash MitM 证书，开启 HTTP 改写与 MitM。
-2. 在外部资源中更新 `redpaper-remove-ads`，然后重新启动小红书并刷新页面。停用其他处理相同小红书接口的脚本，避免重复改写。
+2. 更新覆写至 `2026.10.26.1` 或更新版本，在外部资源中更新 `redpaper-remove-ads`。停用其他处理相同小红书接口的脚本，避免重复改写。
 3. 在请求记录中检查脚本匹配，并验证首页、搜索、笔记和媒体保存功能。原模块没有参数，不依赖参数表单；尚未在 Stash 中实机验证。
 
 沿用上游的广告过滤与水印处理，包括图片、视频、实况照片和评论区实况照片的相关保存接口。原脚本还会处理直播推广、商品卡片、热搜推荐、页面小部件和关注推荐，保留这些默认行为。
+
+## 保存图片仍有水印
+
+本次修正对照 [fmz200 的规则](https://github.com/fmz200/wool_scripts/blob/c3f8128dd03c6b3cb35821c347968282cc45b34f/Loon/plugin/blockAds.plugin)，补齐 `rnote.com` 的 MitM 与改写，并将图片笔记接口扩展到 `edith`、`rec`、`www`。旧版只匹配 `edith.xiaohongshu.com`，其他主机上的图片笔记不会执行去水印脚本。
+
+图片笔记的 `imagefeed`、`v2/note/feed` 所在两组脚本体积上限从 1 MiB 调整为 4 MiB，避免较大响应被 Stash 跳过；其他脚本仍为 1 MiB。远程脚本、正文结构与媒体 URL 未作替换。
+
+更新后先清除小红书应用缓存，完全退出应用，再重新打开笔记保存图片。已有笔记数据、水印配置和已保存到相册的图片不会因更新覆写自动改变。请在 Stash 请求记录确认图片接口命中脚本、水印配置接口命中透明 GIF 响应。
+
+如果仍有水印，需要提供小红书与 Stash 版本、相应请求的 URL（隐去查询参数）及脚本执行状态。当前未取得问题设备的响应样本，不能确认此次匹配与体积修正覆盖所有失效原因。
 
 ## 下载与缓存
 
@@ -29,17 +39,19 @@ script-providers:
 
 | 源模块内容 | Stash 实现 |
 | --- | --- |
-| 1 条 QUIC 规则 | `AND,((PROTOCOL,QUIC),(DOMAIN-SUFFIX,xiaohongshu.com)),REJECT` |
+| QUIC 规则 | 分别拦截 `xiaohongshu.com` 与 `rnote.com` 的 QUIC |
 | 5 条 jq 改写 | `http.body-rewrite` 的 `response-jq`，保留原表达式 |
 | 5 条本地响应 | `http.mock`：4 条 JSON `{}` 和 1 条 1×1 GIF 占位响应，均返回 HTTP 200 |
 | 12 条脚本匹配 | `http.script`，共用一个远程 provider |
-| 5 个 MitM 主机 | `ci`、`edith`、`rec`、`so`、`www` 的 `xiaohongshu.com` 域名 |
+| MitM 主机 | `ci`、`edith`、`rec`、`so`、`www` 的 `xiaohongshu.com` 与 `rnote.com` 域名 |
 
-QUIC 拦截保留源模块的域名范围，移除不兼容的 `extended-matching`；不承诺扩展域名匹配行为。水印配置接口的 `tiny-gif` 改为内置 Base64 GIF 响应。响应脚本设置 1 MiB 体积上限、10 秒超时，超限时不执行脚本。分流和静态响应不受 `AdBlock` 策略组开关控制。
+QUIC 拦截沿用源模块的方式，补齐 `rnote.com`，移除 `extended-matching`。水印配置接口的 `tiny-gif` 改为内置 Base64 GIF 响应。响应脚本设置上述体积上限、10 秒超时，超限时不执行脚本。分流和静态响应不受 `AdBlock` 策略组开关控制。
 
 ## 验证与来源
 
 本地检查包括固定版本与转换映射核对、YAML 解析、正则编译、五条 jq 样例、GIF 尺寸及脚本响应样例。检查不能保证覆盖全部上游数据结构或小红书服务端实验，实际页面与下载结果仍需实机确认。
+
+`node --test tests/redpaper-override.test.cjs` 检查图片接口匹配、体积限制和透明 GIF。设置 `ADSKILLER_REDPAPER_SCRIPT` 为已下载的原脚本路径后，还会模拟执行原脚本，验证双域名各图片接口及超过 1 MiB 的响应能正确设置 `disable_watermark`；未设置时跳过这两项执行检查。原脚本未复制进仓库。
 
 - [RuCu6](https://github.com/RuCu6)、[fmz200](https://github.com/fmz200)：原模块署名作者。
 - [QingRex/LoonKissSurge](https://github.com/QingRex/LoonKissSurge)：所选模块的转换和分发来源。
