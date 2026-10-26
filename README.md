@@ -1,6 +1,6 @@
 # AdsKiller
 
-自用 Stash 配置库，用于维护分流配置、广告拦截规则和覆写。
+自用 Stash 配置库，用于维护分流配置、广告拦截规则和覆写。第三方模块优先使用原生 Stash 版本或 Script Hub 自动转换。
 
 主配置为初始化模板：默认直连，未接入代理节点、订阅或第三方规则，也不包含真实广告域名库。示例拦截域名为 `ads.example.com` 及其子域名。可选覆写单独导入、按需启用。
 
@@ -25,7 +25,15 @@ AdsKiller/
 3. `Proxy` 当前仅包含 `DIRECT`。需要代理时，在个人配置中添加节点或订阅，并将节点加入 `Proxy` 策略组，然后在客户端选择节点。
 4. 编辑主配置中“个人放行规则”和“广告拦截规则”位置，添加自己的规则。规则自上而下匹配，首次命中即生效。
 
+### Script Hub 自动转换
+
+[![安装 Script Hub](assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/Script-Hub-Org/Script-Hub/main/modules/script-hub.stash.stoverride) [打开 Script Hub](https://script.hub/) · [已有来源转换入口与使用说明](docs/script-hub.md)
+
+首次安装并启用官方覆写，更新脚本资源、信任 Stash MitM 证书后，即可转换上游模块并导入 Stash。后续普通第三方模块优先维护来源链接，通过 Script Hub 转换订阅跟随上游更新。
+
 ### 可选覆写
+
+以下保留原生覆写、参数版和额外兼容适配。同一应用切换到 Script Hub 版本时，先停用对应的本仓库覆写。自动转换不包含哔哩哔哩兼容层或小红书域名修正，也不会自动生成本仓库的 Stash 参数表单。
 
 在已安装 Stash 的设备上，用 Safari 点击“导入 Stash”按钮打开覆写导入页，安装后按需启用。按钮引用本仓库 `main` 分支的公开文件，需先将对应文件推送到该分支。
 
@@ -72,6 +80,8 @@ rule-providers:
 - [Stash 规则集](https://stash.wiki/en/rules/rule-set)
 
 ## 致谢与第三方授权
+
+感谢 [Script-Hub-Org / Script Hub](https://github.com/Script-Hub-Org/Script-Hub) 提供重写、模块及规则集自动转换工具；本仓库直接引用官方安装与转换入口。
 
 感谢 [kokoryh](https://github.com/kokoryh) 开发和维护 [Sparkle](https://github.com/kokoryh/Sparkle)。本仓库的 [哔哩哔哩增强覆写](stash/overrides/bilibili.stoverride) 由其 [原模块](https://github.com/kokoryh/Sparkle/blob/master/release/surge/module/bilibili.sgmodule) 转换，保留原作者署名，衍生文件沿用上游 GPL-3.0 许可证。皮肤脚本同样由 kokoryh 提供。
 

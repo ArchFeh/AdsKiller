@@ -4,6 +4,8 @@
 
 导入方式采用 [Stash 官方的一键安装链接](https://stash.wiki/faq/url-schema#导入远程覆写)。
 
+第三方模块优先使用原生 Stash 版本或 [Script Hub 自动转换](../../docs/script-hub.md)。[安装官方 Script Hub 覆写](https://link.stash.ws/install-override/raw.githubusercontent.com/Script-Hub-Org/Script-Hub/main/modules/script-hub.stash.stoverride) 后，可从说明页打开已有来源的转换表单；同一应用仅启用一个版本。本目录继续保留原生覆写、参数版及额外适配。
+
 ## Block QUIC
 
 文件：[block-quic.stoverride](block-quic.stoverride) [![导入 Stash](../../assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/block-quic.stoverride)。
