@@ -1,0 +1,64 @@
+name: 今日宜忌
+desc: 每天一组轻松宜忌，按设备本地日期轮换。内置原创文案，无网络请求。Stash iOS/tvOS 3.2.5+。
+version: '1.0.0'
+
+tiles:
+  - name: adskiller-daily-almanac
+    interval: 900
+    title: 今日宜忌
+    content: 今日份的小提示，正在路上。
+    icon: calendar
+    backgroundColor: '#B56B45'
+
+script-providers:
+  adskiller-daily-almanac:
+    payload: |
+      // Original daily copy. Local calendar date; no requests or storage.
+      (function () {
+        "use strict";
+        var entries = [
+          ["清理一个收藏夹", "把整理变成新的拖延"],
+          ["给自己留点空白", "把日程塞成俄罗斯方块"],
+          ["出门晒一会儿太阳", "在脑内预演十种尴尬"],
+          ["把小事做完一件", "同时打开八个新坑"],
+          ["认真吃一顿饭", "让午饭陪会议加班"],
+          ["向朋友分享一件小事", "把问候写成工作汇报"],
+          ["早点收工", "睡前突然开始大扫除"],
+          ["听一张完整的专辑", "每首歌只听前十秒"],
+          ["把想法随手记下", "相信自己明天一定记得"],
+          ["给桌面腾个位置", "为收纳再买十个盒子"],
+          ["试试没走过的小路", "出门前研究路线两小时"],
+          ["完成一个够用的版本", "给文件起名最终版第九版"],
+          ["抬头看看远处", "跟进度条比耐心"],
+          ["大方接受一句夸奖", "立刻列出自己的不足"],
+          ["给植物浇水前摸摸土", "用勤快代替观察"],
+          ["整理一张喜欢的照片", "修图修到忘记当时的快乐"],
+          ["把困难拆小一点", "给第一步安排史诗级开场"],
+          ["为喜欢的事留半小时", "等所有事忙完再开始生活"],
+          ["说清楚自己的需求", "让别人参加读心考试"],
+          ["允许计划临时转弯", "和昨天的安排较劲"],
+          ["把通知静音一会儿", "每亮一次屏就立即报到"],
+          ["翻翻很久没看的书", "因为买了书就算读过"],
+          ["给今天拍一张照片", "只记录看起来完美的瞬间"],
+          ["做一点没有产出的事", "给快乐也设绩效指标"],
+          ["把一句谢谢说出口", "等到措辞完美才表达"],
+          ["及时保存手头的成果", "拿自动保存考验命运"],
+          ["先试五分钟", "为开始寻找完美星期一"],
+          ["给自己倒杯水", "靠忘记口渴维持专注"],
+          ["删掉一个多余步骤", "把简单事情办成仪式"],
+          ["欣赏一下自己的进步", "拿别人的高光当日常标准"],
+          ["给明天留一条备忘", "临睡前重新规划整个人生"],
+          ["安心休息片刻", "把休息也变成待办任务"]
+        ];
+        var now = new Date();
+        // UTC encodes the LOCAL calendar components, avoiding DST-length days.
+        var day = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+        var index = ((day * 7 + 3) % entries.length + entries.length) % entries.length;
+        var entry = entries[index];
+        $done({
+          title: "今日宜忌 · " + (now.getMonth() + 1) + "/" + now.getDate(),
+          content: "宜 · " + entry[0] + "\n忌 · " + entry[1],
+          icon: "calendar",
+          backgroundColor: "#B56B45"
+        });
+      }());

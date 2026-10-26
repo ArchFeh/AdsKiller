@@ -49,6 +49,16 @@ AdsKiller/
 
 适用范围、启用顺序和验证方式见 [覆写说明](stash/overrides/README.md)。
 
+### 每日小面板
+
+三个原创首页面板，可单独或同时启用，每个内置 32 条文案，按设备本地日期轮换，同一天内容固定。内置脚本，无外部接口、密钥或 MitM 需求。导入方法与刷新说明见 [每日小面板](docs/daily-tiles.md)。
+
+- [今日宜忌](stash/overrides/daily-almanac.stoverride)：每天一组轻松的生活宜忌。 [![导入 Stash](assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/daily-almanac.stoverride)
+- [宇宙来信](stash/overrides/cosmic-letter.stoverride)：每天一封来自想象中星空的短笺。 [![导入 Stash](assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/cosmic-letter.stoverride)
+- [猫猫神谕](stash/overrides/cat-oracle.stoverride)：每天一句猫视角的小建议。 [![导入 Stash](assets/import-stash.svg)](https://link.stash.ws/install-override/raw.githubusercontent.com/ArchFeh/AdsKiller/main/stash/overrides/cat-oracle.stoverride)
+
+在已安装 Stash 的设备上，用 Safari 点击上方按钮即可打开导入页。尚未在 Stash 中实机验证。
+
 ### 使用独立规则集
 
 主配置内置了示例拦截规则，`stash/rules/` 下的文件用于演示独立规则集格式，**目前没有被主配置加载**。仅修改规则集文件不会改变主配置行为。
